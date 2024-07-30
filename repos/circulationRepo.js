@@ -137,7 +137,45 @@ const { MongoClient, ObjectId } = require('mongodb');
         });
     }
 
-    return { loadData, get, getById, add, update, remove, averageFinalists }
+    function averageFinalistsByChange() {
+        return new Promise(async (resolve, reject) => {
+            const client = new MongoClient(url);
+            try {
+                await client.connect();
+                const db = client.db(dbName);
+                
+                const averageByChange = await db.collection('newspapers').aggregate([
+                    {
+                        $project: {
+                            "Newspaper": 1,
+                            "Pulitzer Prize Winners and Finalists, 1990-2014": 1,
+                            "Change in Daily Circulation, 2004-2013": 1,
+                            overallChange: {
+                                $cond: {
+                                    if: { $gte: ["$Change in Daily Circulation, 2004-2013",0]},
+                                        then: "positive",
+                                        else: "negative"
+                                    }
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$overallChange",
+                            avgFinalists: { $avg: "$Pulitzer Prize Winners and Finalists, 1990-2014"}
+                        }
+                    }
+                ]).toArray();
+
+                resolve(averageByChange);
+                client.close();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    return { loadData, get, getById, add, update, remove, averageFinalists, averageFinalistsByChange }
 
  }
 

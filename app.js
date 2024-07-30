@@ -73,7 +73,10 @@ async function main() {
         const averageFinalists = await circulationRepo.averageFinalists();
         assert.equal(averageFinalists, 15.06);
 
-        
+         // ** AGGREGATE: PROJECT, AVG **
+         const averageFinalistsByChange = await circulationRepo.averageFinalistsByChange();
+         console.log(averageFinalistsByChange);
+
     } catch (error) {
         console.log(error);
     } finally {

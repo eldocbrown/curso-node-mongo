@@ -113,7 +113,31 @@ const { MongoClient, ObjectId } = require('mongodb');
         });
     }
 
-    return { loadData, get, getById, add, update, remove }
+    function averageFinalists() {
+        return new Promise(async (resolve, reject) => {
+            const client = new MongoClient(url);
+            try {
+                await client.connect();
+                const db = client.db(dbName);
+                
+                const average = await db.collection('newspapers').aggregate([
+                    {$group:
+                        {
+                            _id: null,
+                            avgFinalists: { $avg: "$Pulitzer Prize Winners and Finalists, 1990-2014"}
+                        }
+                    }
+                ]).toArray();
+
+                resolve(average[0].avgFinalists);
+                client.close();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    return { loadData, get, getById, add, update, remove, averageFinalists }
 
  }
 

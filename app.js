@@ -69,6 +69,11 @@ async function main() {
         const deletedItem = await circulationRepo.getById(addedItemId);
         assert.equal(deletedItem, null);
 
+        // ** AGGREGATE: AVG **
+        const averageFinalists = await circulationRepo.averageFinalists();
+        assert.equal(averageFinalists, 15.06);
+
+        
     } catch (error) {
         console.log(error);
     } finally {
